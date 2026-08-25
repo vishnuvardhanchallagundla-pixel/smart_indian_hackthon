@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyFare AI - Smart Airfare Intelligence & Prediction System</title>
+    <!-- Performance Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+
+    <!-- Modular CSS Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- Google Fonts for modern typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Using Phosphor Icons for modern icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="sidebar-header">
+                <h2><i class="ph ph-airplane" style="font-size:1.1rem;"></i> SkyFare AI</h2>
+                <button class="icon-btn sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close sidebar">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <ul role="menubar">
+                    <li class="active" role="none"><a href="#" role="menuitem" aria-current="page" tabindex="0"><i class="ph ph-squares-four" aria-hidden="true"></i> Dashboard</a></li>
+                    <li role="none"><a href="#" role="menuitem" tabindex="0"><i class="ph ph-airplane-tilt" aria-hidden="true"></i> Airfare Analysis</a></li>
+                    <li role="none"><a href="#" role="menuitem" tabindex="0"><i class="ph ph-map-trifold" aria-hidden="true"></i> Route Analysis</a></li>
+                    <li role="none"><a href="#" role="menuitem" tabindex="0"><i class="ph ph-calendar-check" aria-hidden="true"></i> Booking Window</a></li>
+                    <li role="none"><a href="#" role="menuitem" tabindex="0"><i class="ph ph-chart-line-up" aria-hidden="true"></i> Price Prediction</a></li>
+                    <li role="none"><a href="#" role="menuitem" tabindex="0"><i class="ph ph-bell-ringing" aria-hidden="true"></i> Price Alerts</a></li>
+                    <li role="none"><a href="#" role="menuitem" tabindex="0"><i class="ph ph-file-text" aria-hidden="true"></i> Reports</a></li>
+                    <li role="none"><a href="../test-runner.html" target="_blank" role="menuitem" tabindex="0" title="Open Automated Test Suite Runner"><i class="ph ph-flask" aria-hidden="true"></i> Test Suite Runner <span style="font-size:0.65rem; background:rgba(52,211,153,0.2); color:#34d399; padding:2px 6px; border-radius:4px; margin-left:auto;">28 PASS</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="avatar" aria-hidden="true">CV</div>
+                    <div class="sidebar-user-info">
+                        <span class="sidebar-user-name">Vishnu Vardhan</span>
+                        <span class="sidebar-user-role">Analyst</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content" id="mainContent">
+            <!-- Top Header -->
+            <header class="top-header" role="banner">
+                <div class="header-left">
+                    <button class="icon-btn hamburger-btn" id="sidebarToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">
+                        <i class="ph ph-list" aria-hidden="true"></i>
+                    </button>
+                    <div class="search-box" role="search">
+                        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                        <input type="text" id="globalSearch" placeholder="Search routes, cities, fares..." aria-label="Search routes, cities, and fares" autocomplete="off">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn refresh-btn" id="refreshDataBtn" aria-label="Refresh flight fare data" title="Sync live DGCA & flight data">
+                        <i class="ph ph-arrows-clockwise" id="refreshIcon" aria-hidden="true"></i>
+                    </button>
+                    <button class="icon-btn notification-btn" aria-label="View 3 notifications" id="notificationBtn" title="3 new fare notifications">
+                        <i class="ph ph-bell" aria-hidden="true"></i>
+                        <span class="notification-badge" aria-hidden="true"></span>
+                    </button>
+                    <div class="icon-btn settings-btn" id="settingsBtn" role="button" tabindex="0" aria-label="User settings & theme preferences" title="User Settings & Theme Switcher">
+                        <i class="ph ph-gear-six" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="page-content">
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="app-view active">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Dashboard</h1>
+                            <p class="subtitle">Airfare intelligence overview &amp; key metrics</p>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="secondary-btn" id="exportCsvBtn" title="Download Route & Fare CSV">
+                                <i class="ph ph-file-csv"></i> CSV
+                            </button>
+                            <button class="secondary-btn" id="exportJsonBtn" title="Download Metrics JSON">
+                                <i class="ph ph-brackets-curly"></i> JSON
+                            </button>
+                            <button class="secondary-btn" id="exportPdfBtn" title="Print or Save as PDF">
+                                <i class="ph ph-printer"></i> Print / PDF
+                            </button>
+                            <span class="status-badge">LIVE SYNC READY</span>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Grid -->
+                    <div class="dashboard-grid">
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Total Routes</h3>
+                                <div class="icon-wrapper icon-blue"><i class="ph ph-map-pin"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value">10</div>
+                                <div class="metric-subtext">50 fare records loaded</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Average Fare</h3>
+                                <div class="icon-wrapper icon-cyan"><i class="ph ph-currency-inr"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value">₹6,369</div>
+                                <div class="metric-subtext">Across all windows</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Highest Fare</h3>
+                                <div class="icon-wrapper icon-red"><i class="ph ph-trend-up"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value">₹6,950</div>
+                                <div class="metric-subtext">Peak recorded price</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Lowest Fare</h3>
+                                <div class="icon-wrapper icon-green"><i class="ph ph-trend-down"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value">₹5,780</div>
+                                <div class="metric-subtext">Best available price</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Charts Section -->
+                    <div class="charts-section">
+                        <div class="chart-card full-width">
+                            <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="chart-title-group">
+                                    <h3>Fare Trend by Booking Window</h3>
+                                    <p>Fare progression across travel dates</p>
+                                </div>
+                                <select id="routeChartFilter" class="chart-filter">
+                                    <option value="DEL-BOM">DEL-BOM</option>
+                                    <option value="HYD-BOM">HYD-BOM</option>
+                                    <option value="BLR-HYD">BLR-HYD</option>
+                                </select>
+                            </div>
+                            <div class="chart-container main-chart-container">
+                                <canvas id="mainTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid-3">
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>Window Distribution</h3>
+                                        <p>Booking window share</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="distributionChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>Avg Fare by Booking Window</h3>
+                                        <p>Lower = better booking window</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="avgFareChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>CPI Airfare Index Trend</h3>
+                                        <p>Inflation % and index value</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="cpiChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Route Basket Table Section -->
+                    <div class="table-section">
+                        <div class="section-header" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div class="section-title-group">
+                                <h2>Route Basket &mdash; Top Routes</h2>
+                                <p class="section-subtitle">DGCA weighted route basket rankings</p>
+                            </div>
+                        </div>
+                        
+                        <div class="table-card">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>RANK</th>
+                                            <th>ROUTE</th>
+                                            <th>PASSENGERS</th>
+                                            <th>BASKET WEIGHT</th>
+                                            <th>ALL ROUTE WEIGHT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="routesTableBody">
+                                        <tr id="noResultsRow" style="display: none;">
+                                            <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-secondary); font-style: italic;">No matching routes found</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-pill"># 1</span></td>
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>MUMBAI</span></div></td>
+                                            <td>3,75,420</td>
+                                            <td>10.02 %</td>
+                                            <td><span class="weight-dimmed">4.35 %</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-pill"># 2</span></td>
+                                            <td><div class="route-cell"><span>BENGALURU</span> <i class="ph ph-arrow-right"></i> <span>DELHI</span></div></td>
+                                            <td>2,45,180</td>
+                                            <td>6.54 %</td>
+                                            <td><span class="weight-dimmed">2.84 %</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-pill"># 3</span></td>
+                                            <td><div class="route-cell"><span>HYDERABAD</span> <i class="ph ph-arrow-right"></i> <span>MUMBAI</span></div></td>
+                                            <td>1,56,271</td>
+                                            <td>4.17 %</td>
+                                            <td><span class="weight-dimmed">1.81 %</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-pill"># 4</span></td>
+                                            <td><div class="route-cell"><span>BENGALURU</span> <i class="ph ph-arrow-right"></i> <span>HYDERABAD</span></div></td>
+                                            <td>1,29,315</td>
+                                            <td>3.45 %</td>
+                                            <td><span class="weight-dimmed">1.50 %</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-pill"># 5</span></td>
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>GOA</span></div></td>
+                                            <td>1,50,718</td>
+                                            <td>4.02 %</td>
+                                            <td><span class="weight-dimmed">1.75 %</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="rank-pill"># 6</span></td>
+                                            <td><div class="route-cell"><span>AHMEDABAD</span> <i class="ph ph-arrow-right"></i> <span>DELHI</span></div></td>
+                                            <td>1,46,690</td>
+                                            <td>3.91 %</td>
+                                            <td><span class="weight-dimmed">1.70 %</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Airfare Analysis View -->
+                <div id="view-airfare" class="app-view">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Airfare Analysis</h1>
+                            <p class="subtitle">Deep-dive price progression, moving averages &amp; window variations</p>
+                        </div>
+                        <span class="status-badge">DGCA ANALYTICS</span>
+                    </div>
+
+                    <div class="filter-bar-card">
+                        <div class="filter-item">
+                            <label for="afRoutePicker">Route</label>
+                            <select id="afRoutePicker" class="chart-filter full-input">
+                                <option value="DEL-BOM" selected>DEL → BOM (Delhi - Mumbai)</option>
+                                <option value="HYD-BOM">HYD → BOM (Hyderabad - Mumbai)</option>
+                                <option value="BLR-HYD">BLR → HYD (Bengaluru - Hyderabad)</option>
+                                <option value="DEL-GOA">DEL → GOA (Delhi - Goa)</option>
+                                <option value="AMD-DEL">AMD → DEL (Ahmedabad - Delhi)</option>
+                                <option value="CCU-BOM">CCU → BOM (Kolkata - Mumbai)</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="afWindowSelector">Booking Window</label>
+                            <select id="afWindowSelector" class="chart-filter full-input">
+                                <option value="ALL" selected>All Windows (T+1 to T+60)</option>
+                                <option value="T+1">T+1 (1 Day Prior)</option>
+                                <option value="T+7">T+7 (7 Days Prior)</option>
+                                <option value="T+15">T+15 (15 Days Prior)</option>
+                                <option value="T+30">T+30 (30 Days Prior)</option>
+                                <option value="T+60">T+60 (60 Days Prior)</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="afFromDate">From Date</label>
+                            <input type="date" id="afFromDate" class="chart-filter full-input" value="2026-07-10" style="color-scheme:dark;">
+                        </div>
+                        <div class="filter-item">
+                            <label for="afToDate">To Date</label>
+                            <input type="date" id="afToDate" class="chart-filter full-input" value="2026-10-28" style="color-scheme:dark;">
+                        </div>
+                        <div class="filter-actions">
+                            <button id="afApplyFiltersBtn" class="primary-btn">
+                                <i class="ph ph-funnel"></i> Apply
+                            </button>
+                            <button id="afResetFiltersBtn" class="secondary-btn">
+                                <i class="ph ph-arrow-counter-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid-6">
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Current Fare</h3>
+                                <div class="icon-wrapper icon-blue"><i class="ph ph-currency-inr"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="afCurrentFare">₹6,442</div>
+                                <div class="metric-subtext">Latest recorded fare</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Average Fare</h3>
+                                <div class="icon-wrapper icon-purple"><i class="ph ph-calculator"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="afAvgFare">₹6,369</div>
+                                <div class="metric-subtext">Across selected window</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Minimum Fare</h3>
+                                <div class="icon-wrapper icon-green"><i class="ph ph-trend-down"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="afMinFare">₹5,780</div>
+                                <div class="metric-subtext" style="color:#34d399;">Lowest available fare</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Maximum Fare</h3>
+                                <div class="icon-wrapper icon-red"><i class="ph ph-trend-up"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="afMaxFare">₹6,950</div>
+                                <div class="metric-subtext" style="color:#f87171;">Peak recorded fare</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Volatility</h3>
+                                <div class="icon-wrapper icon-yellow"><i class="ph ph-activity"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="afVolatility">₹301</div>
+                                <div class="metric-subtext">Standard deviation</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Price Change</h3>
+                                <div class="icon-wrapper icon-teal"><i class="ph ph-percent"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="afPriceChange" style="color:#34d399;">-4.99%</div>
+                                <div class="metric-subtext">vs 7-day baseline</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-section">
+                        <div class="chart-card full-width">
+                            <div class="chart-header">
+                                <div class="chart-title-group">
+                                    <h3>Fare Trend &mdash; All Booking Windows</h3>
+                                    <p>Multi-line progression across travel dates (T+1, T+7, T+15, T+30, T+60)</p>
+                                </div>
+                            </div>
+                            <div class="chart-container main-chart-container">
+                                <canvas id="afTrendChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid-2">
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>Moving Average (T+1)</h3>
+                                        <p>2-period moving average trend for short-term booking fares</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="afMovingAvgChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>Daily Price Changes (T+1)</h3>
+                                        <p>Day-over-day price differences &amp; fluctuations</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="afDailyChangeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Route Analysis View -->
+                <div id="view-route" class="app-view">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Route Analysis</h1>
+                            <p class="subtitle">Comparative route-level fare benchmarks &amp; passenger traffic analytics</p>
+                        </div>
+                        <span class="status-badge" id="raOverviewBadge">DEL-BOM &bull; 5 records loaded</span>
+                    </div>
+
+                    <div class="filter-bar-card">
+                        <div class="filter-item">
+                            <label for="raRoutePicker">Select Primary Route to Inspect</label>
+                            <select id="raRoutePicker" class="chart-filter full-input">
+                                <option value="DEL-BOM" selected>DEL → BOM (Delhi - Mumbai)</option>
+                                <option value="HYD-BOM">HYD → BOM (Hyderabad - Mumbai)</option>
+                                <option value="BLR-HYD">BLR → HYD (Bengaluru - Hyderabad)</option>
+                                <option value="DEL-GOA">DEL → GOA (Delhi - Goa)</option>
+                                <option value="DEL-KOL">DEL → KOL (Delhi - Kolkata)</option>
+                                <option value="AMD-DEL">AMD → DEL (Ahmedabad - Delhi)</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button id="raResetBtn" class="secondary-btn">
+                                <i class="ph ph-arrow-counter-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Average Fare</h3>
+                                <div class="icon-wrapper icon-blue"><i class="ph ph-calculator"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="raAvgFare">₹6,369</div>
+                                <div class="metric-subtext">Route benchmark fare</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Minimum Fare</h3>
+                                <div class="icon-wrapper icon-green"><i class="ph ph-trend-down"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="raMinFare" style="color:#34d399;">₹5,780</div>
+                                <div class="metric-subtext">Best recorded price</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Maximum Fare</h3>
+                                <div class="icon-wrapper icon-red"><i class="ph ph-trend-up"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="raMaxFare" style="color:#f87171;">₹6,950</div>
+                                <div class="metric-subtext">Peak recorded price</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Volatility</h3>
+                                <div class="icon-wrapper icon-yellow"><i class="ph ph-activity"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="raVolatility">₹301</div>
+                                <div class="metric-subtext">Standard price variance</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-section">
+                        <div class="chart-card full-width">
+                            <div class="chart-header">
+                                <div class="chart-title-group">
+                                    <h3>Average Fare by Route</h3>
+                                    <p>Horizontal benchmark comparison across major domestic air corridors</p>
+                                </div>
+                            </div>
+                            <div class="chart-container main-chart-container">
+                                <canvas id="raAvgFareByRouteChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid-2">
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>Volatility vs Average Fare</h3>
+                                        <p>Risk vs Return mapping per route corridor</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="raVolatilityScatterChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="chart-card">
+                                <div class="chart-header">
+                                    <div class="chart-title-group">
+                                        <h3>Top City Pairs by Passenger Traffic</h3>
+                                        <p>Monthly passenger volume (DGCA official traffic records)</p>
+                                    </div>
+                                </div>
+                                <div class="chart-container small-chart-container">
+                                    <canvas id="raTrafficBarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-section">
+                        <div class="section-header" style="margin-bottom: 16px;">
+                            <div class="section-title-group">
+                                <h2>Route Comparison Benchmark Table</h2>
+                                <p class="section-subtitle">Click any row below to dynamically inspect route metrics and charts</p>
+                            </div>
+                        </div>
+                        <div class="table-card">
+                            <div class="table-responsive">
+                                <table class="data-table" id="raComparisonTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ROUTE</th>
+                                            <th>AVG FARE</th>
+                                            <th>MIN FARE</th>
+                                            <th>MAX FARE</th>
+                                            <th>VOLATILITY</th>
+                                            <th>RECORDS</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="raTableBody">
+                                        <tr data-route="DEL-BOM" class="ra-row active-route-row" style="cursor: pointer;">
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>MUMBAI</span> <span class="rank-pill">DEL-BOM</span></div></td>
+                                            <td><strong>₹6,369</strong></td>
+                                            <td><span style="color:#34d399; font-weight: 600;">₹5,780</span></td>
+                                            <td><span style="color:#f87171; font-weight: 600;">₹6,950</span></td>
+                                            <td>₹301</td>
+                                            <td><span class="weight-dimmed">5 records</span></td>
+                                            <td><button class="secondary-btn" style="padding: 4px 10px; font-size: 0.75rem;"><i class="ph ph-eye"></i> Inspect</button></td>
+                                        </tr>
+                                        <tr data-route="HYD-BOM" class="ra-row" style="cursor: pointer;">
+                                            <td><div class="route-cell"><span>HYDERABAD</span> <i class="ph ph-arrow-right"></i> <span>MUMBAI</span> <span class="rank-pill">HYD-BOM</span></div></td>
+                                            <td><strong>₹5,200</strong></td>
+                                            <td><span style="color:#34d399; font-weight: 600;">₹4,850</span></td>
+                                            <td><span style="color:#f87171; font-weight: 600;">₹5,800</span></td>
+                                            <td>₹240</td>
+                                            <td><span class="weight-dimmed">8 records</span></td>
+                                            <td><button class="secondary-btn" style="padding: 4px 10px; font-size: 0.75rem;"><i class="ph ph-eye"></i> Inspect</button></td>
+                                        </tr>
+                                        <tr data-route="BLR-HYD" class="ra-row" style="cursor: pointer;">
+                                            <td><div class="route-cell"><span>BENGALURU</span> <i class="ph ph-arrow-right"></i> <span>HYDERABAD</span> <span class="rank-pill">BLR-HYD</span></div></td>
+                                            <td><strong>₹3,480</strong></td>
+                                            <td><span style="color:#34d399; font-weight: 600;">₹3,050</span></td>
+                                            <td><span style="color:#f87171; font-weight: 600;">₹3,900</span></td>
+                                            <td>₹180</td>
+                                            <td><span class="weight-dimmed">6 records</span></td>
+                                            <td><button class="secondary-btn" style="padding: 4px 10px; font-size: 0.75rem;"><i class="ph ph-eye"></i> Inspect</button></td>
+                                        </tr>
+                                        <tr data-route="DEL-GOA" class="ra-row" style="cursor: pointer;">
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>GOA</span> <span class="rank-pill">DEL-GOA</span></div></td>
+                                            <td><strong>₹5,950</strong></td>
+                                            <td><span style="color:#34d399; font-weight: 600;">₹5,200</span></td>
+                                            <td><span style="color:#f87171; font-weight: 600;">₹6,800</span></td>
+                                            <td>₹320</td>
+                                            <td><span class="weight-dimmed">7 records</span></td>
+                                            <td><button class="secondary-btn" style="padding: 4px 10px; font-size: 0.75rem;"><i class="ph ph-eye"></i> Inspect</button></td>
+                                        </tr>
+                                        <tr data-route="DEL-KOL" class="ra-row" style="cursor: pointer;">
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>KOLKATA</span> <span class="rank-pill">DEL-KOL</span></div></td>
+                                            <td><strong>₹6,100</strong></td>
+                                            <td><span style="color:#34d399; font-weight: 600;">₹5,400</span></td>
+                                            <td><span style="color:#f87171; font-weight: 600;">₹6,700</span></td>
+                                            <td>₹290</td>
+                                            <td><span class="weight-dimmed">6 records</span></td>
+                                            <td><button class="secondary-btn" style="padding: 4px 10px; font-size: 0.75rem;"><i class="ph ph-eye"></i> Inspect</button></td>
+                                        </tr>
+                                        <tr data-route="AMD-DEL" class="ra-row" style="cursor: pointer;">
+                                            <td><div class="route-cell"><span>AHMEDABAD</span> <i class="ph ph-arrow-right"></i> <span>DELHI</span> <span class="rank-pill">AMD-DEL</span></div></td>
+                                            <td><strong>₹4,700</strong></td>
+                                            <td><span style="color:#34d399; font-weight: 600;">₹4,000</span></td>
+                                            <td><span style="color:#f87171; font-weight: 600;">₹5,400</span></td>
+                                            <td>₹210</td>
+                                            <td><span class="weight-dimmed">5 records</span></td>
+                                            <td><button class="secondary-btn" style="padding: 4px 10px; font-size: 0.75rem;"><i class="ph ph-eye"></i> Inspect</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Window View -->
+                <div id="view-booking" class="app-view">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Booking Window Analysis</h1>
+                            <p class="subtitle">Analyze fare variations across advance booking tiers (T+1 to T+90)</p>
+                        </div>
+                        <span class="status-badge">DPD OPTIMIZER</span>
+                    </div>
+
+                    <div class="filter-bar-card">
+                        <div class="filter-item">
+                            <label for="bwRouteSelect">Select Route</label>
+                            <select id="bwRouteSelect" class="chart-filter full-input">
+                                <option value="ALL">All Major Routes (Average)</option>
+                                <option value="DEL-BOM" selected>DEL → BOM (Delhi - Mumbai)</option>
+                                <option value="HYD-BOM">HYD → BOM (Hyderabad - Mumbai)</option>
+                                <option value="BLR-HYD">BLR → HYD (Bengaluru - Hyderabad)</option>
+                                <option value="DEL-GOA">DEL → GOA (Delhi - Goa)</option>
+                                <option value="AMD-DEL">AMD → DEL (Ahmedabad - Delhi)</option>
+                                <option value="CCU-BOM">CCU → BOM (Kolkata - Mumbai)</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="bwMonthSelect">Travel Month</label>
+                            <select id="bwMonthSelect" class="chart-filter full-input">
+                                <option value="ALL" selected>All Months (Combined)</option>
+                                <option value="OCT">October 2026</option>
+                                <option value="NOV">November 2026</option>
+                                <option value="DEC">December 2026</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button id="bwResetBtn" class="secondary-btn">
+                                <i class="ph ph-arrow-counter-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Best Advance Window</h3>
+                                <div class="icon-wrapper icon-green"><i class="ph ph-trophy"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="bwBestWindow" style="color:#34d399;">T+60</div>
+                                <div class="metric-subtext" id="bwBestWindowSub">Lowest average fare of ₹5,780</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Worst Advance Window</h3>
+                                <div class="icon-wrapper icon-red"><i class="ph ph-warning-octagon"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="bwWorstWindow" style="color:#f87171;">T+1</div>
+                                <div class="metric-subtext" id="bwWorstWindowSub">Peak last-minute fare of ₹6,950</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Savings Potential</h3>
+                                <div class="icon-wrapper icon-teal"><i class="ph ph-piggy-bank"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="bwSavingsPotential">₹1,170</div>
+                                <div class="metric-subtext" id="bwSavingsSub">Save up to 16.8% by booking early</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Optimal Purchase Zone</h3>
+                                <div class="icon-wrapper icon-blue"><i class="ph ph-calendar-star"></i></div>
+                            </div>
+                            <div class="card-body">
+                                <div class="metric-value" id="bwOptimalZone">30–60 Days Out</div>
+                                <div class="metric-subtext">Recommended booking period</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-section" style="margin-top: 24px;">
+                        <div class="chart-card full-width">
+                            <div class="chart-header">
+                                <div class="chart-title-group">
+                                    <h3>Average Fare by Days Prior to Departure (DPD)</h3>
+                                    <p>Highlighting lowest booking zone in green and peak surge in red</p>
+                                </div>
+                            </div>
+                            <div class="chart-container main-chart-container">
+                                <canvas id="bwDpdBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-section" style="margin-top: 28px;">
+                        <div class="section-header" style="margin-bottom: 16px;">
+                            <div class="section-title-group">
+                                <h2>DPD Fare Matrix &amp; Heatmap</h2>
+                                <p class="section-subtitle">Route-by-route fare variation matrix across advance booking windows</p>
+                            </div>
+                        </div>
+                        <div class="table-card">
+                            <div class="table-responsive">
+                                <table class="data-table heatmap-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ROUTE</th>
+                                            <th>T+1 (LAST MINUTE)</th>
+                                            <th>T+7 (1 WEEK OUT)</th>
+                                            <th>T+15 (2 WEEKS OUT)</th>
+                                            <th>T+30 (1 MONTH OUT)</th>
+                                            <th>T+60 (2 MONTHS OUT)</th>
+                                            <th>BEST WINDOW</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="heatmapTableBody">
+                                        <tr>
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>MUMBAI</span></div></td>
+                                            <td><span class="heat-cell heat-high">₹6,442</span></td>
+                                            <td><span class="heat-cell heat-high">₹6,442</span></td>
+                                            <td><span class="heat-cell heat-mid">₹6,305</span></td>
+                                            <td><span class="heat-cell heat-mid">₹6,057</span></td>
+                                            <td><span class="heat-cell heat-low">₹5,780</span></td>
+                                            <td><span class="best-window-badge"><i class="ph ph-check-circle"></i> T+60</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div class="route-cell"><span>HYDERABAD</span> <i class="ph ph-arrow-right"></i> <span>MUMBAI</span></div></td>
+                                            <td><span class="heat-cell heat-high">₹5,800</span></td>
+                                            <td><span class="heat-cell heat-high">₹5,650</span></td>
+                                            <td><span class="heat-cell heat-mid">₹5,400</span></td>
+                                            <td><span class="heat-cell heat-mid">₹5,100</span></td>
+                                            <td><span class="heat-cell heat-low">₹4,850</span></td>
+                                            <td><span class="best-window-badge"><i class="ph ph-check-circle"></i> T+60</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div class="route-cell"><span>BENGALURU</span> <i class="ph ph-arrow-right"></i> <span>HYDERABAD</span></div></td>
+                                            <td><span class="heat-cell heat-high">₹3,900</span></td>
+                                            <td><span class="heat-cell heat-high">₹3,750</span></td>
+                                            <td><span class="heat-cell heat-mid">₹3,500</span></td>
+                                            <td><span class="heat-cell heat-mid">₹3,200</span></td>
+                                            <td><span class="heat-cell heat-low">₹3,050</span></td>
+                                            <td><span class="best-window-badge"><i class="ph ph-check-circle"></i> T+60</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div class="route-cell"><span>DELHI</span> <i class="ph ph-arrow-right"></i> <span>GOA</span></div></td>
+                                            <td><span class="heat-cell heat-high">₹7,800</span></td>
+                                            <td><span class="heat-cell heat-high">₹7,300</span></td>
+                                            <td><span class="heat-cell heat-mid">₹6,900</span></td>
+                                            <td><span class="heat-cell heat-mid">₹6,500</span></td>
+                                            <td><span class="heat-cell heat-low">₹6,000</span></td>
+                                            <td><span class="best-window-badge"><i class="ph ph-check-circle"></i> T+60</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div class="route-cell"><span>AHMEDABAD</span> <i class="ph ph-arrow-right"></i> <span>DELHI</span></div></td>
+                                            <td><span class="heat-cell heat-high">₹5,400</span></td>
+                                            <td><span class="heat-cell heat-high">₹5,000</span></td>
+                                            <td><span class="heat-cell heat-mid">₹4,700</span></td>
+                                            <td><span class="heat-cell heat-mid">₹4,400</span></td>
+                                            <td><span class="heat-cell heat-low">₹4,000</span></td>
+                                            <td><span class="best-window-badge"><i class="ph ph-check-circle"></i> T+60</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Prediction View -->
+                <div id="view-prediction" class="app-view">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Price Prediction</h1>
+                            <p class="subtitle">AI-powered fare forecasting based on booking window</p>
+                        </div>
+                    </div>
+                    <div class="glass-card" style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text-primary);">Enter Trip Details for AI Inference</h3>
+                        <div class="filter-bar-card" style="background: none; border: none; padding: 0; margin: 0;">
+                            <div class="filter-item">
+                                <label>Route</label>
+                                <select id="predRoute" class="chart-filter full-input">
+                                    <option value="DEL-BOM">DEL → BOM (Delhi - Mumbai)</option>
+                                    <option value="HYD-BOM">HYD → BOM (Hyderabad - Mumbai)</option>
+                                    <option value="BLR-HYD">BLR → HYD (Bengaluru - Hyderabad)</option>
+                                    <option value="DEL-GOA">DEL → GOA (Delhi - Goa)</option>
+                                    <option value="AMD-DEL">AMD → DEL (Ahmedabad - Delhi)</option>
+                                    <option value="CCU-BOM">CCU → BOM (Kolkata - Mumbai)</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Cabin Class</label>
+                                <select id="predClass" class="chart-filter full-input">
+                                    <option value="Economy">Economy</option>
+                                    <option value="Premium Economy">Premium Economy</option>
+                                    <option value="Business">Business Class</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Target Travel Date</label>
+                                <input type="date" id="predDate" class="chart-filter full-input" style="color-scheme:dark;" value="2026-10-15">
+                            </div>
+                            <div class="filter-actions">
+                                <button id="predictBtn" class="primary-btn" style="min-width: 160px;">
+                                    <i class="ph ph-magic-wand"></i> Predict Price
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Prediction Results Container -->
+                    <div id="predResults" class="glass-card" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                            <div>
+                                <h3 style="color: var(--text-primary); font-size: 1.2rem; margin-bottom: 4px;">Forecasted Fare Output</h3>
+                                <p style="font-size: 0.84rem; color: var(--text-secondary);" id="resFareRange">Expected range: ₹5,980 – ₹6,800</p>
+                            </div>
+                            <span class="status-badge" id="resConfidence" style="background: rgba(59,130,246,0.15); color: #60a5fa; border-color: rgba(59,130,246,0.3);">High Confidence</span>
+                        </div>
+                        <div style="font-size: 2.2rem; font-weight: 700; color: #34d399; margin-bottom: 16px;" id="resFareVal">₹6,305</div>
+                        <div style="background: rgba(15,23,42,0.6); padding: 14px 18px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-primary); font-size: 0.88rem; color: var(--text-primary);" id="resRecBox">
+                            Book Now — Prices are expected to rise closer to departure date.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Alerts View -->
+                <div id="view-alerts" class="app-view">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Price Alerts</h1>
+                            <p class="subtitle">Active user-created alerts — get notified on fare drops</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-grid">
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">DEL-BOM Alert</h3>
+                                <span class="status-badge" style="background:rgba(16,185,129,0.15); color:#34d399;">ACTIVE</span>
+                            </div>
+                            <div class="metric-value">₹5,500 Target</div>
+                            <div class="metric-subtext">Current fare: ₹6,442 (Window: T+15)</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">HYD-BOM Alert</h3>
+                                <span class="status-badge" style="background:rgba(245,158,11,0.15); color:#fbbf24;">TRIGGERED</span>
+                            </div>
+                            <div class="metric-value">₹4,900 Target</div>
+                            <div class="metric-subtext">Current fare: ₹4,850 (Window: T+60)</div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="card-header">
+                                <h3 class="card-title">BLR-HYD Alert</h3>
+                                <span class="status-badge" style="background:rgba(16,185,129,0.15); color:#34d399;">ACTIVE</span>
+                            </div>
+                            <div class="metric-value">₹3,200 Target</div>
+                            <div class="metric-subtext">Current fare: ₹3,900 (Window: T+60)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports View -->
+                <div id="view-reports" class="app-view">
+                    <div class="page-header">
+                        <div class="page-title-group">
+                            <h1>Reports &amp; Data Export</h1>
+                            <p class="subtitle">Export complete fare trend models and raw DGCA dataset metrics</p>
+                        </div>
+                    </div>
+                    <div class="charts-grid-3">
+                        <div class="glass-card">
+                            <i class="ph ph-file-csv" style="font-size: 2.2rem; color: #34d399; margin-bottom: 12px;"></i>
+                            <h3 style="margin-bottom: 6px; font-size: 1.1rem;">CSV Data Dump</h3>
+                            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 16px;">Download full route basket rankings and historical prices in spreadsheet format.</p>
+                            <button class="primary-btn" onclick="ExportEngine.exportToCSV()"><i class="ph ph-download-simple"></i> Download .CSV</button>
+                        </div>
+
+                        <div class="glass-card">
+                            <i class="ph ph-brackets-curly" style="font-size: 2.2rem; color: #60a5fa; margin-bottom: 12px;"></i>
+                            <h3 style="margin-bottom: 6px; font-size: 1.1rem;">Structured JSON Payload</h3>
+                            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 16px;">Export active fare alerts and calculated market metrics for API pipeline consumption.</p>
+                            <button class="primary-btn" onclick="ExportEngine.exportToJSON()"><i class="ph ph-download-simple"></i> Download .JSON</button>
+                        </div>
+
+                        <div class="glass-card">
+                            <i class="ph ph-printer" style="font-size: 2.2rem; color: #c084fc; margin-bottom: 12px;"></i>
+                            <h3 style="margin-bottom: 6px; font-size: 1.1rem;">Executive PDF Report</h3>
+                            <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 16px;">Clean print-formatted PDF report layout without sidebar or UI controls.</p>
+                            <button class="secondary-btn" onclick="ExportEngine.triggerPrintPDF()"><i class="ph ph-printer"></i> Print / PDF Report</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- User Settings Modal -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="ph ph-gear-six"></i> User Preferences &amp; Settings</h3>
+                <button id="closeSettingsModal" class="modal-close"><i class="ph ph-x"></i></button>
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">Color Theme Mode</label>
+                <select id="themeModeSelect" class="chart-filter full-input">
+                    <option value="dark" selected>Dark Glassmorphism (Default)</option>
+                    <option value="light">Light Crisp Theme</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase;">Default Dashboard Corridor</label>
+                <select class="chart-filter full-input">
+                    <option value="DEL-BOM" selected>DEL → BOM (Delhi - Mumbai)</option>
+                    <option value="HYD-BOM">HYD → BOM (Hyderabad - Mumbai)</option>
+                    <option value="BLR-HYD">BLR → HYD (Bengaluru - Hyderabad)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modular JavaScript Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/prediction.js"></script>
+    <script src="js/routes.js"></script>
+    <script src="js/booking-window.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

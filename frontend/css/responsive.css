@@ -1,0 +1,132 @@
+/* ============================================================
+   SkyFare AI — Responsive & Print Layout Stylesheet
+   Media Queries for Tablet, Mobile, and Print Exports
+   ============================================================ */
+
+/* ── Desktop & Tablet Grid Responsiveness ──────────────────── */
+@media (max-width: 1300px) {
+    .metrics-grid-6 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 1200px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+    .charts-grid-2 { grid-template-columns: 1fr; }
+    .charts-grid-3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        transform: translateX(-100%);
+    }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-overlay { display: block; }
+    .sidebar-close-btn { display: block; }
+    .sidebar-toggle-btn { display: block; }
+
+    .top-header { padding: 0 16px; }
+    .page-content { padding: 16px; }
+
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .metrics-grid-6 { grid-template-columns: repeat(2, 1fr); }
+
+    .filter-bar-card { padding: 16px; }
+    .filter-item { min-width: 100%; }
+    .filter-actions { width: 100%; }
+    .filter-actions button { flex: 1; justify-content: center; }
+
+    .header-left { max-width: 100%; }
+    .page-header { flex-direction: column; gap: 12px; }
+}
+
+@media (max-width: 480px) {
+    .metrics-grid-6 { grid-template-columns: 1fr; }
+    .metric-value { font-size: 1.4rem; }
+    .page-title-group h1 { font-size: 1.35rem; }
+    .chart-card { padding: 16px; }
+    .main-chart-container { height: 260px; }
+    .small-chart-container { height: 200px; }
+}
+
+/* ── Print Media Query (@media print) ──────────────────────── */
+@media print {
+    /* Hide non-printable navigation & header controls */
+    .sidebar,
+    .sidebar-overlay,
+    .top-header,
+    .filter-bar-card,
+    .filter-actions,
+    .icon-btn,
+    .toast-container,
+    .modal-overlay {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .app-container {
+        display: block !important;
+        height: auto !important;
+    }
+
+    .main-content {
+        overflow: visible !important;
+    }
+
+    .page-content {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .app-view {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    .glass-card,
+    .metric-card,
+    .chart-card,
+    .table-card {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        color: #000000 !important;
+        backdrop-filter: none !important;
+        page-break-inside: avoid;
+    }
+
+    .metric-value,
+    .chart-title-group h3,
+    .page-title-group h1 {
+        color: #0f172a !important;
+    }
+
+    .data-table th {
+        background: #f1f5f9 !important;
+        color: #334155 !important;
+    }
+
+    .data-table td {
+        color: #0f172a !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    /* Print header notice */
+    .page-header::after {
+        content: "SkyFare AI — Airfare Intelligence Official DGCA Analytics Report";
+        display: block;
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 6px;
+    }
+}
