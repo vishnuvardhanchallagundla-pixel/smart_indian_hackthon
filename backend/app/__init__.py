@@ -1,1 +1,0 @@
-# SkyFare AI App Package
